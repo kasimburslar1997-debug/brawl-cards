@@ -27,8 +27,23 @@ function installPWA() {
   }
 }
 
-/* =================== 2. إدارة الحالة والتخزين الموحد =================== */
-const STORAGE_KEY = 'BRAWL_A4_V4_FINAL_STUDIO';
+/* =================== 2. لوحات الألوان الجاهزة (20 فاقع + 20 داكن) =================== */
+const VIBRANT_PALETTE = [
+  '#FFCC00', '#FFA500', '#FF5722', '#FF1744', '#F50057', 
+  '#D500F9', '#7C4DFF', '#3D5AFE', '#2979FF', '#00B0FF', 
+  '#00E5FF', '#1DE9B6', '#00E676', '#76FF03', '#C6FF00', 
+  '#FFEA00', '#FF9100', '#FF3D00', '#E040FB', '#FFFFFF'
+];
+
+const DARK_PALETTE = [
+  '#000000', '#0A0E17', '#121829', '#151D30', '#1C2847', 
+  '#0A0F1D', '#1A233A', '#232D42', '#2B1736', '#3D1528', 
+  '#3D2015', '#332712', '#142E1E', '#0D2B33', '#1C2630', 
+  '#2C3E50', '#34495E', '#212F3D', '#3E2723', '#263238'
+];
+
+/* =================== 3. إدارة الحالة والتخزين =================== */
+const STORAGE_KEY = 'BRAWL_A4_V5_STROKE_POPUP_COLORS';
 
 let state = {
   global: {
@@ -50,9 +65,12 @@ let state = {
     iconPos: 'right',
     iconSizePct: 70,
 
-    // الأسماء العامة
+    // الأسماء العامة (تم إضافة تحكم الستروك ونوع الخط)
     namesSizePct: 12,
     namesColor: '#ffffff',
+    namesFontWeight: '900',       // 400 (رفيع) أو 700 (عادي) أو 900 (سميك)
+    namesStrokeWidth: 1,          // سماكة الستروك
+    namesStrokeColor: '#000000',  // لون الستروك
     padVerticalPct: 4,
     padHorizontalPct: 4,
     namesGapPct: 3
@@ -62,13 +80,12 @@ let state = {
   selectedCardIndex: 0
 };
 
-// إنشاء كرت مع تخصيص لونه الخاص المستقل
 function createBlankCard(i) {
   return {
     id: i + 1,
     title: `كرت #${i + 1}`,
-    upperBg: '#1c2847', // خلفية مساحة الأسماء الخاصة بهذا الكرت
-    barBg: '#0a0f1d',   // خلفية شريط الاسم الخاصة بهذا الكرت
+    upperBg: '#1c2847',
+    barBg: '#0a0f1d',
     iconBase64: null,
     names: ['', '', '', '', '', '', '', '']
   };
@@ -108,14 +125,17 @@ function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-/* =================== 3. توليد كود HTML المتجاوب للكرت =================== */
+/* =================== 4. توليد كود HTML المتجاوب للكرت =================== */
 function generateCardHTML(card) {
   const g = state.global;
 
-  // تنصيف الأسماء وتجاهل الخانات الفارغة تماماً
   const activeNames = (card.names || [])
     .map((n) => (n || '').trim())
     .filter((n) => n.length > 0);
+
+  const namesStrokeStyle = (g.namesStrokeWidth > 0)
+    ? `-webkit-text-stroke: ${g.namesStrokeWidth}px ${g.namesStrokeColor};`
+    : '';
 
   let namesHTML = '';
   activeNames.forEach((name) => {
@@ -123,11 +143,13 @@ function generateCardHTML(card) {
       <div class="card-name-item" style="
         color: ${g.namesColor};
         font-size: ${g.namesSizePct}cqi;
+        font-weight: ${g.namesFontWeight || '900'};
+        ${namesStrokeStyle}
       ">${name}</div>
     `;
   });
 
-  const strokeStyle = (g.strokeWidth > 0)
+  const titleStrokeStyle = (g.strokeWidth > 0)
     ? `-webkit-text-stroke: ${g.strokeWidth}px ${g.strokeColor};`
     : '';
 
@@ -153,7 +175,7 @@ function generateCardHTML(card) {
           color: ${g.titleColor};
           font-weight: ${g.fontWeight};
           font-size: ${g.titleSizePct}cqi;
-          ${strokeStyle}
+          ${titleStrokeStyle}
         ">
           ${card.title}
         </div>
@@ -165,7 +187,7 @@ function generateCardHTML(card) {
   `;
 }
 
-/* =================== 4. رسم وتحديث المعاينة A4 (842 × 595) =================== */
+/* =================== 5. رسم المعاينة A4 والكرت المختار =================== */
 function renderA4Page() {
   const page = document.getElementById('a4-page');
   const g = state.global;
@@ -208,7 +230,7 @@ function selectCard(index) {
   populateCardTabFields();
 }
 
-/* =================== 5. مزامنة الإعدادات العامة =================== */
+/* =================== 6. مزامنة المدخلات العامة =================== */
 function syncDual(fromId, toId, callback) {
   const val = document.getElementById(fromId).value;
   document.getElementById(toId).value = val;
@@ -221,24 +243,21 @@ function updateGlobalConfig() {
   g.cols = Math.max(1, parseInt(document.getElementById('cfg-cols').value) || 1);
   g.rows = Math.max(1, parseInt(document.getElementById('cfg-rows').value) || 1);
   g.borderWidth = parseInt(document.getElementById('cfg-border-w-slider').value) || 0;
-  g.borderColor = document.getElementById('cfg-border-c').value;
-  g.bgColor = document.getElementById('cfg-bg-c').value;
 
   g.barHeightPct = parseFloat(document.getElementById('g-bar-h-slider').value) || 30;
   g.titleSizePct = parseFloat(document.getElementById('g-title-s-slider').value) || 13;
   g.strokeWidth = parseFloat(document.getElementById('g-stroke-w-slider').value) || 0;
   g.fontWeight = document.getElementById('g-font-weight').value;
-  g.titleColor = document.getElementById('g-title-c').value;
-  g.strokeColor = document.getElementById('g-stroke-c').value;
 
   g.iconPos = document.getElementById('g-icon-pos').value;
   g.iconSizePct = parseFloat(document.getElementById('g-icon-s-slider').value) || 70;
 
+  g.namesFontWeight = document.getElementById('g-names-weight').value;
   g.namesSizePct = parseFloat(document.getElementById('g-names-s-slider').value) || 12;
+  g.namesStrokeWidth = parseFloat(document.getElementById('g-names-stroke-w-slider').value) || 0;
   g.padVerticalPct = parseFloat(document.getElementById('g-pad-v-slider').value) || 4;
   g.padHorizontalPct = parseFloat(document.getElementById('g-pad-h-slider').value) || 4;
   g.namesGapPct = parseFloat(document.getElementById('g-names-gap-slider').value) || 3;
-  g.namesColor = document.getElementById('g-names-c').value;
 
   ensureCardsCapacity();
   saveState();
@@ -258,33 +277,150 @@ function populateGlobalFields() {
   };
 
   setPair('cfg-border-w-slider', 'cfg-border-w-num', g.borderWidth);
-  document.getElementById('cfg-border-c').value = g.borderColor;
-  document.getElementById('cfg-bg-c').value = g.bgColor;
-
   setPair('g-bar-h-slider', 'g-bar-h-num', g.barHeightPct);
   setPair('g-title-s-slider', 'g-title-s-num', g.titleSizePct);
   setPair('g-stroke-w-slider', 'g-stroke-w-num', g.strokeWidth);
   document.getElementById('g-font-weight').value = g.fontWeight;
-  document.getElementById('g-title-c').value = g.titleColor;
-  document.getElementById('g-stroke-c').value = g.strokeColor;
 
   document.getElementById('g-icon-pos').value = g.iconPos;
   setPair('g-icon-s-slider', 'g-icon-s-num', g.iconSizePct);
 
+  document.getElementById('g-names-weight').value = g.namesFontWeight || '900';
   setPair('g-names-s-slider', 'g-names-s-num', g.namesSizePct);
+  setPair('g-names-stroke-w-slider', 'g-names-stroke-w-num', g.namesStrokeWidth || 1);
   setPair('g-pad-v-slider', 'g-pad-v-num', g.padVerticalPct);
   setPair('g-pad-h-slider', 'g-pad-h-num', g.padHorizontalPct);
   setPair('g-names-gap-slider', 'g-names-gap-num', g.namesGapPct);
-  document.getElementById('g-names-c').value = g.namesColor;
+
+  updateAllColorSwatches();
 }
 
-/* =================== 6. تبويب الكرت المحدد (تعديل فردي) =================== */
+/* =================== 7. نظام المودال المنبثق للألوان (Color Picker Modal) =================== */
+let activeColorTargetKey = null;
+
+function triggerColorPicker(targetKey) {
+  activeColorTargetKey = targetKey;
+  const currentColor = getColorByKey(targetKey);
+
+  document.getElementById('hex-custom-color-input').value = currentColor.toUpperCase();
+  document.getElementById('native-custom-color-input').value = currentColor;
+
+  document.getElementById('modal-color-picker').classList.add('open');
+  lucide.createIcons();
+}
+
+function closeColorPicker() {
+  document.getElementById('modal-color-picker').classList.remove('open');
+  activeColorTargetKey = null;
+}
+
+function getColorByKey(key) {
+  const g = state.global;
+  const currentCard = state.cards[state.selectedCardIndex] || createBlankCard(state.selectedCardIndex);
+
+  switch (key) {
+    case 'cfg-border-c': return g.borderColor;
+    case 'cfg-bg-c': return g.bgColor;
+    case 'g-title-c': return g.titleColor;
+    case 'g-stroke-c': return g.strokeColor;
+    case 'g-names-c': return g.namesColor;
+    case 'g-names-stroke-c': return g.namesStrokeColor || '#000000';
+    case 'ed-single-upper-bg': return currentCard.upperBg || '#1c2847';
+    case 'ed-single-bar-bg': return currentCard.barBg || '#0a0f1d';
+    default: return '#ffffff';
+  }
+}
+
+function applySelectedColor(hexColor) {
+  if (!activeColorTargetKey) return;
+  const g = state.global;
+  const currentCard = state.cards[state.selectedCardIndex];
+
+  switch (activeColorTargetKey) {
+    case 'cfg-border-c': g.borderColor = hexColor; break;
+    case 'cfg-bg-c': g.bgColor = hexColor; break;
+    case 'g-title-c': g.titleColor = hexColor; break;
+    case 'g-stroke-c': g.strokeColor = hexColor; break;
+    case 'g-names-c': g.namesColor = hexColor; break;
+    case 'g-names-stroke-c': g.namesStrokeColor = hexColor; break;
+    case 'ed-single-upper-bg': if (currentCard) currentCard.upperBg = hexColor; break;
+    case 'ed-single-bar-bg': if (currentCard) currentCard.barBg = hexColor; break;
+  }
+
+  updateAllColorSwatches();
+  saveState();
+  renderA4Page();
+  renderActiveCardStage();
+  closeColorPicker();
+}
+
+function onCustomColorPick(val) {
+  document.getElementById('hex-custom-color-input').value = val.toUpperCase();
+  applySelectedColor(val);
+}
+
+function onHexInput(val) {
+  if (/^#[0-9A-F]{6}$/i.test(val)) {
+    document.getElementById('native-custom-color-input').value = val;
+  }
+}
+
+function applyCustomHex() {
+  const val = document.getElementById('hex-custom-color-input').value.trim();
+  if (/^#[0-9A-F]{6}$/i.test(val)) {
+    applySelectedColor(val);
+  } else {
+    alert('يرجى إدخال صيغة HEX صحيحة مثل #FF0000');
+  }
+}
+
+function updateAllColorSwatches() {
+  const g = state.global;
+  const currentCard = state.cards[state.selectedCardIndex] || createBlankCard(state.selectedCardIndex);
+
+  const setSwatch = (id, color) => {
+    const el = document.getElementById(id);
+    if (el) el.style.backgroundColor = color;
+  };
+
+  setSwatch('swatch-cfg-border-c', g.borderColor);
+  setSwatch('swatch-cfg-bg-c', g.bgColor);
+  setSwatch('swatch-g-title-c', g.titleColor);
+  setSwatch('swatch-g-stroke-c', g.strokeColor);
+  setSwatch('swatch-g-names-c', g.namesColor);
+  setSwatch('swatch-g-names-stroke-c', g.namesStrokeColor || '#000000');
+  setSwatch('swatch-ed-single-upper-bg', currentCard.upperBg || '#1c2847');
+  setSwatch('swatch-ed-single-bar-bg', currentCard.barBg || '#0a0f1d');
+}
+
+function buildColorPalettesUI() {
+  const vibrantGrid = document.getElementById('vibrant-palette-grid');
+  vibrantGrid.innerHTML = '';
+  VIBRANT_PALETTE.forEach((color) => {
+    const dot = document.createElement('div');
+    dot.className = 'palette-color-circle';
+    dot.style.backgroundColor = color;
+    dot.onclick = () => applySelectedColor(color);
+    vibrantGrid.appendChild(dot);
+  });
+
+  const darkGrid = document.getElementById('dark-palette-grid');
+  darkGrid.innerHTML = '';
+  DARK_PALETTE.forEach((color) => {
+    const dot = document.createElement('div');
+    dot.className = 'palette-color-circle';
+    dot.style.backgroundColor = color;
+    dot.onclick = () => applySelectedColor(color);
+    darkGrid.appendChild(dot);
+  });
+}
+
+/* =================== 8. تبويب الكرت المحدد =================== */
 function populateCardTabFields() {
   const card = state.cards[state.selectedCardIndex] || createBlankCard(state.selectedCardIndex);
 
   document.getElementById('ed-single-title').value = card.title;
-  document.getElementById('ed-single-upper-bg').value = card.upperBg || '#1c2847';
-  document.getElementById('ed-single-bar-bg').value = card.barBg || '#0a0f1d';
+  updateAllColorSwatches();
 
   for (let i = 0; i < 8; i++) {
     const inp = document.getElementById(`ed-name-field-${i}`);
@@ -299,8 +435,6 @@ function onCurrentCardChange() {
   if (!card) return;
 
   card.title = document.getElementById('ed-single-title').value || `كرت #${state.selectedCardIndex + 1}`;
-  card.upperBg = document.getElementById('ed-single-upper-bg').value;
-  card.barBg = document.getElementById('ed-single-bar-bg').value;
 
   const names = [];
   for (let i = 0; i < 8; i++) {
@@ -369,7 +503,7 @@ function switchControlTab(tab) {
   lucide.createIcons();
 }
 
-/* =================== 7. التقريب والتنقل (Pinch Zoom & Pan) =================== */
+/* =================== 9. التقريب والتنقل (Pinch-to-zoom & Pan) =================== */
 const viewport = document.getElementById('a4-viewport');
 const canvasContainer = document.getElementById('a4-canvas-container');
 let scale = 0.85, panX = 0, panY = 0;
@@ -383,7 +517,7 @@ function applyTransform() {
 function resetZoom() {
   const cw = viewport.clientWidth;
   const ch = viewport.clientHeight;
-  scale = Math.min((cw - 40) / 842, (ch - 40) / 595, 1);
+  scale = Math.min((cw - 20) / 842, (ch - 20) / 595, 1);
   panX = 0;
   panY = 0;
   applyTransform();
@@ -444,13 +578,12 @@ window.addEventListener('mousemove', (e) => {
 });
 window.addEventListener('mouseup', () => { isPanning = false; });
 
-/* =================== 8. تصدير A4 بدقة 4K الحقيقية (3840 × 2713) =================== */
+/* =================== 10. تصدير A4 بدقة 4K (3840 × 2713) =================== */
 async function exportTo4KPNG() {
   const page = document.getElementById('a4-page');
   const oldTransform = canvasContainer.style.transform;
   canvasContainer.style.transform = 'none';
 
-  // 3840 / 842 = 4.5605倍 -> الدقة الناتجة: 3840 × 2713 بكسل (أبعاد A4 الصحيحة)
   const scaleFactor = 3840 / page.offsetWidth;
 
   try {
@@ -466,14 +599,14 @@ async function exportTo4KPNG() {
     link.href = canvas.toDataURL('image/png');
     link.click();
   } catch (err) {
-    alert('حدث خطأ أثناء التصدير، يرجى المحاولة ثانية.');
+    alert('حدث خطأ أثناء التصدير، يرجى المحاولة مجدداً.');
     console.error(err);
   } finally {
     canvasContainer.style.transform = oldTransform;
   }
 }
 
-/* =================== 9. إدارة بنك الأيقونات =================== */
+/* =================== 11. إدارة بنك الأيقونات =================== */
 function openIconModal() {
   renderIconModalList();
   document.getElementById('modal-icons').classList.add('open');
@@ -532,7 +665,7 @@ function renderIconModalList() {
   });
 }
 
-/* =================== 10. وضع ملء الشاشة ومنع القوائم =================== */
+/* =================== 12. وضع ملء الشاشة ومنع القوائم =================== */
 window.addEventListener('contextmenu', (e) => e.preventDefault());
 
 function toggleFullScreen() {
@@ -543,10 +676,11 @@ function toggleFullScreen() {
   }
 }
 
-/* =================== التشغيل المبدئي للتطبيق =================== */
+/* =================== التشغيل المبدئي =================== */
 window.addEventListener('DOMContentLoaded', () => {
   loadState();
   buildNamesInputs();
+  buildColorPalettesUI();
   populateGlobalFields();
   populateCardTabFields();
 
