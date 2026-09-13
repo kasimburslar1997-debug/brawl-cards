@@ -65,7 +65,7 @@ let state = {
     iconPos: 'right',
     iconSizePct: 70,
 
-    // الأسماء العامة (تم إضافة تحكم الستروك ونوع الخط)
+    // الأسماء العامة (ستروك ونوع الخط)
     namesSizePct: 12,
     namesColor: '#ffffff',
     namesFontWeight: '900',       // 400 (رفيع) أو 700 (عادي) أو 900 (سميك)
