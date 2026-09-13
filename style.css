@@ -47,10 +47,10 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 5px 12px;
+  gap: 5px;
+  padding: 5px 11px;
   font-weight: 900;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   color: #fff;
   background: var(--bs-blue);
   border: var(--border-thick);
@@ -66,7 +66,7 @@ body {
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 1px 0 var(--bs-blue-dark), 0 2px 0 var(--bs-border);
 }
 
-.bs-btn.icon-only { padding: 6px 9px; }
+.bs-btn.icon-only { padding: 6px 8px; }
 
 .bs-btn-yellow { 
   background: var(--bs-yellow); 
@@ -88,22 +88,22 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 14px;
+  padding: 0 12px;
   z-index: 10;
 }
 
 .brand-badge {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   font-weight: 900;
-  font-size: 1.05rem;
+  font-size: 1rem;
   color: var(--bs-yellow);
 }
-.brand-icon { stroke-width: 2.5; width: 22px; height: 22px; }
-.header-actions { display: flex; gap: 8px; align-items: center; }
+.brand-icon { stroke-width: 2.5; width: 20px; height: 20px; }
+.header-actions { display: flex; gap: 6px; align-items: center; }
 
-/* تخطيط الداشبورد الأفقي الموحد */
+/* =================== التخطيط الرئيسي =================== */
 .main-layout {
   flex: 1;
   display: flex;
@@ -112,7 +112,7 @@ body {
   height: calc(100vh - 48px);
 }
 
-/* =================== القسم الأيمن (معاينة A4) =================== */
+/* القسم الأيمن (معاينة A4) */
 .right-pane {
   flex: 1.4;
   background: #0b0f1a;
@@ -140,7 +140,6 @@ body {
   transition: transform 0.05s ease-out;
 }
 
-/* أبعاد A4 الأفقية الدقيقة (842 × 595) */
 #a4-page {
   width: 842px;
   height: 595px;
@@ -172,17 +171,17 @@ body {
   right: 12px;
   background: rgba(0,0,0,0.75);
   border: 1.5px solid #333;
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 8px;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--bs-yellow);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   pointer-events: none;
 }
 
-/* =================== القسم الأيسر (الكرت والإعدادات) =================== */
+/* القسم الأيسر (الكرت والإعدادات) */
 .left-pane {
   flex: 1;
   max-width: 480px;
@@ -193,9 +192,8 @@ body {
   overflow: hidden;
 }
 
-/* القسم العلوي: استعراض الكرت */
 .left-top-card-stage {
-  padding: 10px 14px;
+  padding: 8px 12px;
   background: #111726;
   border-bottom: var(--border-thick);
   display: flex;
@@ -208,21 +206,21 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .active-badge {
   background: #000;
   color: var(--bs-yellow);
   border: 1.5px solid #333;
-  padding: 2px 10px;
+  padding: 2px 8px;
   border-radius: 8px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 900;
 }
 
 .auto-save-text {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--bs-green);
   display: flex;
   align-items: center;
@@ -232,7 +230,7 @@ body {
 
 .active-card-preview-holder {
   width: 100%;
-  max-width: 290px;
+  max-width: 275px;
   aspect-ratio: 1.415 / 1;
   border: 3px solid #000;
   border-radius: 10px;
@@ -240,7 +238,6 @@ body {
   box-shadow: 0 4px 0 #000;
 }
 
-/* القسم السفلي: تبويبات التحكم */
 .left-bottom-controls {
   flex: 1;
   display: flex;
@@ -256,16 +253,16 @@ body {
 
 .tab-btn {
   flex: 1;
-  padding: 8px;
+  padding: 7px;
   background: transparent;
   border: none;
   color: #8c9cb8;
   font-weight: 900;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   cursor: pointer;
   border-bottom: 3px solid transparent;
   transition: all 0.15s;
@@ -280,7 +277,7 @@ body {
 .tab-panel {
   flex: 1;
   overflow-y: auto;
-  padding: 12px;
+  padding: 10px;
   display: none;
   flex-direction: column;
   gap: 10px;
@@ -295,7 +292,7 @@ body {
 }
 
 .group-title {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--bs-yellow);
   font-weight: 900;
   margin-bottom: 8px;
@@ -313,11 +310,10 @@ body {
   margin-bottom: 8px;
   flex-wrap: wrap;
 }
-
 .form-row:last-child { margin-bottom: 0; }
 
 .form-row label {
-  font-size: 0.77rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: #cfd8ea;
 }
@@ -329,17 +325,17 @@ body {
   border: 2px solid #000;
   color: #fff;
   border-radius: 6px;
-  padding: 4px 6px;
-  font-size: 0.82rem;
+  padding: 3px 6px;
+  font-size: 0.8rem;
   font-weight: 700;
 }
 .form-row input[type="text"] { flex: 1; }
 
-/* سلايدرات Brawl Stars الكرتونية */
+/* سلايدرات كرتونية */
 .bs-slider-field {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   flex: 1;
 }
 
@@ -366,37 +362,102 @@ body {
 }
 
 .bs-slider-field input[type="number"] {
-  width: 48px;
+  width: 46px;
   text-align: center;
   padding: 2px;
   font-weight: 900;
 }
 
-/* منتقي الألوان الدائري بنمط Brawl Stars */
-.bs-color-picker {
-  position: relative;
+/* =================== دوائر اختيار الألوان التفاعلية =================== */
+.bs-color-swatch-btn {
   width: 28px;
   height: 28px;
   border-radius: 50%;
   border: 2.5px solid #000;
   box-shadow: 0 2px 0 #000, inset 0 1px 1px rgba(255,255,255,0.6);
-  overflow: hidden;
   cursor: pointer;
   flex-shrink: 0;
-  display: inline-flex;
+  transition: transform 0.1s;
+}
+.bs-color-swatch-btn:active {
+  transform: scale(0.9);
 }
 
-.bs-color-picker input[type="color"] {
-  position: absolute;
-  top: -10px;
-  left: -10px;
-  width: 50px;
-  height: 50px;
-  border: none;
+/* =================== نافذة اختيار الألوان المنبثقة =================== */
+.color-modal-box {
+  max-width: 420px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.color-palette-section {
+  margin-bottom: 12px;
+  background: #0d121f;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1.5px solid #000;
+}
+
+.palette-category-title {
+  font-size: 0.75rem;
+  color: var(--bs-yellow);
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.palette-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 5px;
+}
+
+.palette-color-circle {
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  border: 2px solid #000;
+  box-shadow: 0 2px 0 #000;
   cursor: pointer;
-  background: transparent;
+  transition: transform 0.08s;
+}
+.palette-color-circle:active {
+  transform: scale(0.85);
 }
 
+.color-custom-row {
+  background: #0d121f;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1.5px solid #000;
+}
+
+.custom-color-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.custom-color-controls input[type="color"] {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid #000;
+  background: transparent;
+  cursor: pointer;
+}
+
+.custom-color-controls input[type="text"] {
+  flex: 1;
+  background: #1c263c;
+  border: 2px solid #000;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+/* =================== شبكة الأسماء والأيقونات =================== */
 .names-inputs-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -449,7 +510,7 @@ body {
   object-fit: contain;
 }
 
-/* =================== الهيكل الداخلي للكرت النسبي (CQI) =================== */
+/* =================== الهيكل الداخلي للكرت النسبي =================== */
 .card-content-box {
   width: 100%;
   height: 100%;
@@ -478,9 +539,8 @@ body {
   white-space: nowrap;
   overflow: hidden;
   line-height: 1.1;
-  font-weight: 900;
   text-align: center;
-  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
+  paint-order: stroke fill;
 }
 
 .card-lower-bar {
@@ -520,7 +580,7 @@ body {
   object-fit: contain;
 }
 
-/* نافذة إدارة الأيقونات */
+/* =================== النوافذ المنبثقة =================== */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -537,14 +597,14 @@ body {
   border: var(--border-thick);
   border-radius: 14px;
   width: 90%;
-  max-width: 480px;
-  padding: 16px;
+  max-width: 460px;
+  padding: 14px;
   box-shadow: 0 6px 0 #000;
 }
 
-.modal-header { display: flex; justify-content: space-between; align-items: center; }
-.modal-title { font-weight: 900; color: var(--bs-yellow); display: flex; align-items: center; gap: 6px; }
-.modal-desc { font-size: 0.77rem; color: #9bb0d3; margin: 6px 0 10px 0; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.modal-title { font-weight: 900; color: var(--bs-yellow); display: flex; align-items: center; gap: 6px; font-size: 0.95rem; }
+.modal-desc { font-size: 0.75rem; color: #9bb0d3; margin: 4px 0 10px 0; }
 .modal-upload-bar { margin-bottom: 12px; }
 
 .icons-management-list {
@@ -585,4 +645,48 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+/* =================== التجاوب مع الجوالات والوضع الطولي (Portrait) =================== */
+@media (max-width: 850px), (orientation: portrait) {
+  .main-layout {
+    flex-direction: column;
+    height: calc(100vh - 48px);
+  }
+
+  /* قسم المعاينة يحتل الجزء العلوي */
+  .right-pane {
+    flex: none;
+    height: 38vh;
+    min-height: 210px;
+    border-left: none;
+    border-bottom: var(--border-thick);
+  }
+
+  /* قسم الإعدادات يحتل الجزء السفلي */
+  .left-pane {
+    flex: 1;
+    max-width: 100%;
+    min-width: 100%;
+  }
+
+  .left-top-card-stage {
+    padding: 6px 10px;
+  }
+
+  .active-card-preview-holder {
+    max-width: 220px;
+  }
+
+  .brand-title {
+    display: none; /* إخفاء نص العنوان على شاشات الهواتف الضيقة */
+  }
+
+  .app-header {
+    padding: 0 6px;
+  }
+
+  .bs-btn span {
+    font-size: 0.75rem;
+  }
 }
