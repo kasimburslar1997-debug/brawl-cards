@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Brawl Cards Studio Pro</title>
+
+  <!-- إعدادات Web App لأندرويد وiOS لتشغيل التطبيق بملء الشاشة وبالعرض -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0e1322">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="screen-orientation" content="landscape">
+
+  <!-- الخط الكرتوني العربي Cairo -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
+
+  <!-- مكتبة الأيقونات Lucide ومكتبة التصدير بدقة 4K -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- شريط الأدوات العلوي -->
+  <header class="app-header">
+    <div class="brand-badge">
+      <i data-lucide="layout-grid" class="brand-icon"></i>
+      <span>BRAWL A4 STUDIO</span>
+    </div>
+
+    <div class="header-actions">
+      <!-- زر تثبيت تطبيق أندرويد PWA (يظهر عند دعمه من المتصفح) -->
+      <button class="bs-btn bs-btn-yellow" id="btn-install-pwa" style="display:none;" onclick="installPWA()">
+        <i data-lucide="smartphone"></i>
+        <span>تثبيت التطبيق</span>
+      </button>
+
+      <button class="bs-btn" onclick="resetZoom()" title="إعادة ضبط المعاينة">
+        <i data-lucide="scan"></i>
+        <span>ضبط العرض</span>
+      </button>
+
+      <button class="bs-btn bs-btn-purple" onclick="openIconModal()" title="إدارة بنك الأيقونات">
+        <i data-lucide="images"></i>
+        <span>بنك الأيقونات</span>
+      </button>
+
+      <button class="bs-btn bs-btn-green" onclick="exportTo4KPNG()" title="تصدير كصورة 4K بدقة 3840×2713">
+        <i data-lucide="download"></i>
+        <span>تصدير 4K PNG</span>
+      </button>
+
+      <button class="bs-btn icon-only" onclick="toggleFullScreen()" title="ملء الشاشة">
+        <i data-lucide="maximize-2"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- التخطيط الرئيسي: معاينة A4 يميناً ولوحة التحكم يساراً -->
+  <div class="main-layout">
+
+    <!-- القسم الأيمن: معاينة وتكبير A4 (842 × 595) -->
+    <section class="right-pane">
+      <div class="a4-viewport" id="a4-viewport">
+        <div id="a4-canvas-container">
+          <div id="a4-page">
+            <!-- تتولد شبكة الكروت تفاعلياً هنا -->
+          </div>
+        </div>
+      </div>
+      <div class="zoom-indicator">
+        <i data-lucide="zoom-in"></i>
+        <span>A4 Landscape (842 × 595) | قرص بالإصبعين أو الماوس للتقريب / انقر كرت لتحديده وتعديله</span>
+      </div>
+    </section>
+
+    <!-- القسم الأيسر: كرت محدد وإعدادات -->
+    <section class="left-pane">
+      
+      <!-- القسم العلوي: استعراض الكرت المختار بنفس شكله ونسبه الحقيقية -->
+      <div class="left-top-card-stage">
+        <div class="stage-header">
+          <span class="active-badge" id="current-card-badge">الكرت المحدد: #1</span>
+          <span class="auto-save-text"><i data-lucide="check-check"></i> حفظ تلقائي</span>
+        </div>
+        <div class="active-card-preview-holder" id="active-card-holder">
+          <!-- كرت المعاينة المباشر -->
+        </div>
+      </div>
+
+      <!-- القسم السفلي: تبويبات الإعدادات -->
+      <div class="left-bottom-controls">
+        <div class="control-tabs">
+          <button class="tab-btn active" id="tab-btn-global" onclick="switchControlTab('global')">
+            <i data-lucide="sliders"></i> إعدادات عامة (لكل الكروت)
+          </button>
+          <button class="tab-btn" id="tab-btn-card" onclick="switchControlTab('card')">
+            <i data-lucide="edit-3"></i> محتوى وألوان الكرت الحالي
+          </button>
+        </div>
+
+        <!-- 1. تبويب الإعدادات العامة (يطبق على كامل الكروت) -->
+        <div class="tab-panel active" id="panel-global">
+          
+          <!-- تقسيم شبكة A4 -->
+          <div class="group-box">
+            <div class="group-title"><i data-lucide="grid"></i> شبكة A4 وتقسيم الصفحة</div>
+            <div class="form-row">
+              <label>الأعمدة:</label>
+              <input type="number" id="cfg-cols" min="1" max="15" value="4" onchange="updateGlobalConfig()">
+              <label>الصفوف:</label>
+              <input type="number" id="cfg-rows" min="1" max="15" value="3" onchange="updateGlobalConfig()">
+            </div>
+            <div class="form-row">
+              <label>سمك التقسيم:</label>
+              <div class="bs-slider-field">
+                <input type="range" id="cfg-border-w-slider" min="0" max="15" value="3" oninput="syncDual('cfg-border-w-slider', 'cfg-border-w-num', updateGlobalConfig)">
+                <input type="number" id="cfg-border-w-num" min="0" max="15" value="3" oninput="syncDual('cfg-border-w-num', 'cfg-border-w-slider', updateGlobalConfig)">
+              </div>
+            </div>
+            <div class="form-row">
+              <label>لون خط الفصل:</label>
+              <div class="bs-color-picker">
+                <input type="color" id="cfg-border-c" value="#000000" onchange="updateGlobalConfig()">
+              </div>
+              <label>خلفية A4 العامة:</label>
+              <div class="bs-color-picker">
+                <input type="color" id="cfg-bg-c" value="#121829" onchange="updateGlobalConfig()">
+              </div>
+            </div>
+          </div>
+
+          <!-- شريط الاسم السفلي العام -->
+          <div class="group-box">
+            <div class="group-title"><i data-lucide="type"></i> شريط الاسم السفلي (عام للكل)</div>
+            <div class="form-row">
+              <label>ارتفاع الشريط:</label>
+              <div class="bs-slider-field">
+                <input type="range" id="g-bar-h-slider" min="15" max="50" value="30" oninput="syncDual('g-bar-h-slider', 'g-bar-h-num', updateGlobalConfig)">
+                <input type="number" id="g-bar-h-num" min="15" max="50" value="30" oninput="syncDual('g-bar-h-num', 'g-bar-h-slider', updateGlobalConfig)">
+              </div>
+            </div>
+            <div class="form-row">
+              <label>حجم خط الاسم:</label>
+              <div class="bs-slider-field">
+                <input type="range" id="g-title-s-slider" min="6" max="25" value="13" oninput="syncDual('g-title-s-slider', 'g-title-s-num', updateGlobalConfig)">
+                <input type="number" id="g-title-s-num" min="6" max="25" value="13" oninput="syncDual('g-title-s-num', 'g-title-s-slider', updateGlobalConfig)">
+              </div>
+            </div>
+            <div class="form-row">
+              <label>سمك الـ Stroke:</label>
+              <div class="bs-slider-field">
+                <input type="range" id="g-stroke-w-slider" min="0" max="6" value="2" oninput="syncDual('g-stroke-w-slider', 'g-stroke-w-num', updateGlobalConfig)">
+                <input type="number" id="g-stroke-w-num" min="0" max="6" value="2" oninput="syncDual('g-stroke-w-num', 'g-stroke-w-slider', updateGlobalConfig)">
+              </div>
+            </div>
+            <div class="form-row">
+              <label>وزن الخط:</label>
+              <select id="g-font-weight" onchange="updateGlobalConfig()">
+                <option value="700">عادي (Bold)</option>
+                <option value="900" selected>عريض جداً (Heavy)</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>لون خط الاسم:</label>
+              <div class="bs-color-picker">
+                <input type="color" id="g-title-c" value="#ffffff" onchange="updateGlobalConfig()">
+              </div>
+              <label>لون الـ Stroke:</label>
+              <div class="bs-color-picker">
+                <input type="color" id="g-stroke-c" value="#000000" onchange="updateGlobalConfig()">
+              </div>
+            </div>
+          </div>
+
+          <!-- إعدادات الأيقونات العامة -->
+          <div class="group-box">
+            <div class="group-title"><i data-lucide="image"></i> الأيقونات (عام للكل)</div>
+            <div class="form-row">
+              <label>موضع الأيقونة:</label>
+              <select id="g-icon-pos" onchange="updateGlobalConfig()">
+                <option value="right" selected>يمين الاسم</option>
+                <option value="left">يسار الاسم</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>حجم الأيقونة:</label>
+              <div class="bs-slider-field">
+                <input type="range" id="g-icon-s-slider" min="20" max="95" value="70" oninput="syncDual('g-icon-s-slider', 'g-icon-s-num', updateGlobalConfig)">
+                <input type="number" id="g-icon-s-num" min="20" max="95" value="70" oninput="syncDual('g-icon-s-num', 'g-icon-s-slider', updateGlobalConfig)">
+              </div>
+            </div>
+          </div>
+
+          <!-- إعدادات الأسماء والتباعدات العامة -->
+          <div class="group-box">
+            <div class="group-title"><i data-lucide="users"></i> الأسماء والتباعدات (عام للكل)</div>
+            <div class="form-row">
+              <label>حجم خط الأسماء:</label>
+              <div class="bs-slider-field">
+                <input type="range" id="g-names-s-slider" min="6" max="24" value="12" oninput="syncDual('g-names-s-slider', 'g-names-s-num', updateGlobalConfig)">
+                <input type="number" id="g-names-s-num" min="6" max="24" value="12" oninput="syncDual('g-names-s-num', 'g-names-s-slider', updateGlobalConfig)">
+              </div>
+            </div>
+            <div class="form-row">
+              <label>تباعد رأسي (أعلى/أسفل):</label>
+              <div class="bs-slider-field">
+                <input type="range" id="g-pad-v-slider" min="0" max="20" value="4" oninput="syncDual('g-pad-v-slider', 'g-pad-v-num', updateGlobalConfig)">
+                <input type="number" id="g-pad-v-num" min="0" max="20" value="4" oninput="syncDual('g-pad-v-num', 'g-pad-v-slider', updateGlobalConfig)">
+              </div>
+            </div>
+            <div class="form-row">
+              <label>تباعد أفقي (جانبين):</label>
+              <div class="bs-slider-field">
+                <input type="range" id="g-pad-h-slider" min="0" max="20" value="4" oninput="syncDual('g-pad-h-slider', 'g-pad-h-num', updateGlobalConfig)">
+                <input type="number" id="g-pad-h-num" min="0" max="20" value="4" oninput="syncDual('g-pad-h-num', 'g-pad-h-slider', updateGlobalConfig)">
+              </div>
+            </div>
+            <div class="form-row">
+              <label>تباعد بين الأسماء:</label>
+              <div class="bs-slider-field">
+                <input type="range" id="g-names-gap-slider" min="0" max="15" value="3" oninput="syncDual('g-names-gap-slider', 'g-names-gap-num', updateGlobalConfig)">
+                <input type="number" id="g-names-gap-num" min="0" max="15" value="3" oninput="syncDual('g-names-gap-num', 'g-names-gap-slider', updateGlobalConfig)">
+              </div>
+            </div>
+            <div class="form-row">
+              <label>لون نصوص الأسماء:</label>
+              <div class="bs-color-picker">
+                <input type="color" id="g-names-c" value="#ffffff" onchange="updateGlobalConfig()">
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 2. تبويب محتوى وألوان الكرت المحدد (تخصيص فردي) -->
+        <div class="tab-panel" id="panel-card">
+          
+          <!-- ألوان منفردة لهذا الكرت فقط -->
+          <div class="group-box">
+            <div class="group-title"><i data-lucide="palette"></i> ألوان هذا الكرت المنفردة</div>
+            <div class="form-row">
+              <label>خلفية مساحة الأسماء:</label>
+              <div class="bs-color-picker">
+                <input type="color" id="ed-single-upper-bg" value="#1c2847" oninput="onCurrentCardChange()">
+              </div>
+              <label>خلفية شريط الاسم:</label>
+              <div class="bs-color-picker">
+                <input type="color" id="ed-single-bar-bg" value="#0a0f1d" oninput="onCurrentCardChange()">
+              </div>
+            </div>
+          </div>
+
+          <!-- هوية الكرت -->
+          <div class="group-box">
+            <div class="group-title"><i data-lucide="tag"></i> هوية الكرت</div>
+            <div class="form-row">
+              <label>اسم الكرت:</label>
+              <input type="text" id="ed-single-title" oninput="onCurrentCardChange()">
+            </div>
+          </div>
+
+          <!-- أيقونة الكرت -->
+          <div class="group-box">
+            <div class="group-title"><i data-lucide="smile"></i> أيقونة هذا الكرت</div>
+            <div class="icon-picker-grid" id="ed-icon-picker">
+              <!-- تتولد خيارات الأيقونات هنا -->
+            </div>
+          </div>
+
+          <!-- قائمة الأسماء الثمانية (تتوسط تلقائياً) -->
+          <div class="group-box">
+            <div class="group-title"><i data-lucide="list"></i> أسماء الكرت (حد أقصى 8 - تتوسط تلقائياً)</div>
+            <div class="names-inputs-grid" id="names-inputs-container">
+              <!-- 8 خانات إدخال -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- نافذة بنك الأيقونات المحفوظة -->
+  <div class="modal-overlay" id="modal-icons">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title"><i data-lucide="folder-archive"></i> بنك الأيقونات المحفوظة</div>
+        <button class="bs-btn bs-btn-red icon-only" onclick="closeIconModal()"><i data-lucide="x"></i></button>
+      </div>
+      <p class="modal-desc">ارفع ملفات PNG لتبقى مخزنة في التطبيق وتستطيع إرفاقها بأي كرت.</p>
+      
+      <div class="modal-upload-bar">
+        <input type="file" id="icon-file-input" accept="image/png" multiple style="display:none" onchange="handleIconUpload(event)">
+        <button class="bs-btn bs-btn-yellow" onclick="document.getElementById('icon-file-input').click()">
+          <i data-lucide="upload"></i> إضافة أيقونات جديدة
+        </button>
+      </div>
+
+      <div class="icons-management-list" id="icons-manager-list">
+        <!-- قائمة الأيقونات المحفوظة -->
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
